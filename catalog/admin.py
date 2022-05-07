@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from catalog.models import Card, Ad
+
+admin.site.register(Card)
+admin.site.register(Ad)
