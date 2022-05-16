@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models.functions import Length
 
+from app import settings
+
 models.CharField.register_lookup(Length)
 models.TextField.register_lookup(Length)
 
@@ -15,6 +17,7 @@ class Card(models.Model):
     description = models.TextField(null=True, blank=True)
     price = models.FloatField()
     image = models.ImageField(null=True, blank=True)
+    users = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
     class Meta:
         constraints = [
@@ -30,13 +33,15 @@ class Card(models.Model):
 
 class Ad(models.Model):
     """Announcements
-    are shown only on marketplace,
-    can be added only one be one
+    are shown only on urls of marketplace,
+    can't be added new. Just old ads.
     """
     name = models.CharField(max_length=70)
     description = models.TextField()
     phone = models.CharField(max_length=120)
     image = models.ImageField(null=True, blank=True)
+    users = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    cities = models.ForeignKey("City", on_delete=models.SET_NULL, null=True)
 
     class Meta:
         constraints = [
@@ -49,6 +54,17 @@ class Ad(models.Model):
                 name="Ad's_description_min_length",
             )
         ]
+
+    def __str__(self):
+        return self.name
+
+
+class City(models.Model):
+    name = models.CharField(max_length=120)
+    cards = models.ManyToManyField(Card, related_name="cities")
+
+    class Meta:
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
